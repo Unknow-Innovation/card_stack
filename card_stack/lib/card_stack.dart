@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'dart:math' as math;
 
+export 'package:card_stack/config/enums.dart';
+export 'package:card_stack/card_stack.dart';
+
 class CardStack<T> extends StatefulWidget {
   final List<T> items;
   final Widget Function(T item) cardBuilder;
