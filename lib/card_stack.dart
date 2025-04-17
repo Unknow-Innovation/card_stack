@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:card_stack/config/enums.dart';
 import 'package:card_stack/widgets/custom_gesture_handler.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +20,18 @@ class CardStack<T> extends StatefulWidget {
   final double threshold;
   final Duration animationDuration;
   final int backgroundCardCount;
+  final Widget emptyWidget;
+  final Widget loadingWidget;
+  final bool isLoading;
 
   const CardStack({
     super.key,
     required this.items,
     required this.cardBuilder,
     required this.onSwipe,
+    required this.emptyWidget,
+    required this.loadingWidget,
+    required this.isLoading,
     this.cardWidth = 300,
     this.cardHeight = 400,
     this.scaleFactor = 0.9,
@@ -38,7 +46,6 @@ class CardStack<T> extends StatefulWidget {
 }
 
 class _CardStackState<T> extends State<CardStack<T>> {
-  int _currentIndex = 0;
   final List<Widget> _cards = [];
 
   @override
@@ -47,7 +54,14 @@ class _CardStackState<T> extends State<CardStack<T>> {
     _initializeCards();
   }
 
+  @override
+  void didUpdateWidget(covariant CardStack<T> oldWidget) {
+    _initializeCards();
+    super.didUpdateWidget(oldWidget);
+  }
+
   void _initializeCards() {
+    log(widget.items.toString());
     _cards.clear();
     for (int i = 0; i < widget.items.length; i++) {
       final item = widget.items[i];
@@ -61,7 +75,6 @@ class _CardStackState<T> extends State<CardStack<T>> {
       onSwipe: (direction) {
         widget.onSwipe(item, direction);
         setState(() {
-          _currentIndex++;
           _initializeCards();
         });
       },
@@ -89,32 +102,33 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentIndex >= widget.items.length) {
-      return const Center(
-        child: Text('No more cards'),
+    if (widget.isLoading) {
+      return Center(
+        child: widget.loadingWidget,
       );
     }
-
+    if (_cards.isEmpty) {
+      return Center(
+        child: widget.emptyWidget,
+      );
+    }
     return Center(
       child: Stack(
         alignment: Alignment.center,
         children: [
-          ...List.generate(
-            math.min(widget.backgroundCardCount, _cards.length - 1),
-            (index) {
-              final cardIndex = index + 1;
-              if (cardIndex >= _cards.length) return const SizedBox.shrink();
+          if (_cards.length >= 2)
+            ...List.generate(
+              math.min(widget.backgroundCardCount, _cards.length - 1),
+              (index) {
+                final cardIndex = index + 1;
+                if (cardIndex >= _cards.length) return widget.emptyWidget;
 
-              // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
-              // final offset = cardIndex * 10.0;
-
-              return Positioned(
-                top: 0,
-                child: _cards[cardIndex],
-              );
-            },
-          ),
-          // Current card
+                return Positioned(
+                  top: 0,
+                  child: _cards[cardIndex],
+                );
+              },
+            ),
           _cards.first,
         ],
       ),
