@@ -101,7 +101,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
       );
     }
     if (widget.items.isEmpty) {
-      return const Center(
+      return  Center(
         child: widget.emptyWidget,
       );
     }
