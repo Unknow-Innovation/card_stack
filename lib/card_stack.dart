@@ -55,15 +55,53 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   void _initializeCards() {
     _cards.clear();
-    for (int i = 0; i < widget.items.length; i++) {
-      final item = widget.items[i];
+
+    // for (int i = 0; i < widget.items.length; i++) {
+    //   final item = widget.items[i];
+    //   final card = _buildCard(item);
+    //   _cards.add(card);
+    // }
+
+    for (var item in widget.items) {
       final card = _buildCard(item);
       _cards.add(card);
     }
   }
 
-  Widget _buildCard(T item) {
-    return CustomGestureHandler(
+  // Widget _buildCard(T item) {
+  //   return 
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return Center(
+        child: widget.loadingWidget,
+      );
+    }
+    if (_currentIndex >= widget.items.length) {
+      return const Center(
+        child: widget.emptyWidget,
+      );
+    }
+
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ...List.generate(
+            math.min(widget.backgroundCardCount, widget.items.length - 1),
+            (index) {
+              final cardIndex = index + 1;
+              if (cardIndex >= widget.items.length)
+                return const SizedBox.shrink();
+
+              // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
+              // final offset = cardIndex * 10.0;
+
+              return Positioned(
+                top: 0,
+                child: CustomGestureHandler(
       onSwipe: (direction) {
         widget.onSwipe(item, direction);
         setState(() {
@@ -90,47 +128,14 @@ class _CardStackState<T> extends State<CardStack<T>> {
         ),
         child: widget.cardBuilder(item),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if(widget.isLoading) {
-      return Center(
-        child: widget.loadingWidget,
-      );
-    }
-    if (_currentIndex >= widget.items.length) {
-      return  Center(
-        child: widget.emptyWidget,
-      );
-    }
- else {
-      return Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            ...List.generate(
-              math.min(widget.backgroundCardCount, _cards.length - 1),
-              (index) {
-                final cardIndex = index + 1;
-                if (cardIndex >= _cards.length) return const SizedBox.shrink();
-
-                // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
-                // final offset = cardIndex * 10.0;
-
-                return Positioned(
-                  top: 0,
-                  child: _cards[cardIndex],
-                );
-              },
-            ),
-            // Current card
-            _cards.first,
-          ],
-        ),
-      );
-    }
+    );,
+              );
+            },
+          ),
+          // Current card
+          _cards.first,
+        ],
+      ),
     );
   }
 }
