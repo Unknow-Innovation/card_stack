@@ -100,7 +100,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
         child: widget.loadingWidget,
       );
     }
-    if (_currentIndex > widget.items.length -1) {
+    if (_currentIndex >= widget.items.length) {
       return  Center(
         child: widget.emptyWidget,
       );
