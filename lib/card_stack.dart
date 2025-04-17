@@ -105,30 +105,32 @@ class _CardStackState<T> extends State<CardStack<T>> {
         child: widget.emptyWidget,
       );
     }
+ else {
+      return Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ...List.generate(
+              math.min(widget.backgroundCardCount, _cards.length - 1),
+              (index) {
+                final cardIndex = index + 1;
+                if (cardIndex >= _cards.length) return const SizedBox.shrink();
 
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ...List.generate(
-            math.min(widget.backgroundCardCount, _cards.length - 1),
-            (index) {
-              final cardIndex = index + 1;
-              if (cardIndex >= _cards.length) return const SizedBox.shrink();
+                // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
+                // final offset = cardIndex * 10.0;
 
-              // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
-              // final offset = cardIndex * 10.0;
-
-              return Positioned(
-                top: 0,
-                child: _cards[cardIndex],
-              );
-            },
-          ),
-          // Current card
-          _cards.first,
-        ],
-      ),
+                return Positioned(
+                  top: 0,
+                  child: _cards[cardIndex],
+                );
+              },
+            ),
+            // Current card
+            _cards.first,
+          ],
+        ),
+      );
+    }
     );
   }
 }
