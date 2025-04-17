@@ -128,7 +128,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
         ),
         child: widget.cardBuilder(item),
       ),
-    );,
+    ),
               );
             },
           ),
