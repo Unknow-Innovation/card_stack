@@ -90,7 +90,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
         alignment: Alignment.center,
         children: [
           ...List.generate(
-            math.min(widget.backgroundCardCount, widget.items.length - 1),
+            widget.items.length,
             (index) {
               final cardIndex = index + 1;
               if (cardIndex >= widget.items.length)
