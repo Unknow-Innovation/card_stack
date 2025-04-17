@@ -18,15 +18,10 @@ class CardStack<T> extends StatefulWidget {
   final double threshold;
   final Duration animationDuration;
   final int backgroundCardCount;
-  final Widget emptyWidget;
-  final Widget loadingWidget;
-  final bool isLoading;
 
   const CardStack({
     super.key,
     required this.items,
-    required this.emptyWidget,
-    required this.loadingWidget,
     required this.cardBuilder,
     required this.onSwipe,
     this.cardWidth = 300,
@@ -36,7 +31,6 @@ class CardStack<T> extends StatefulWidget {
     this.threshold = 100.0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.backgroundCardCount = 2,
-    this.isLoading = false,
   });
 
   @override
@@ -55,53 +49,15 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   void _initializeCards() {
     _cards.clear();
-
-    // for (int i = 0; i < widget.items.length; i++) {
-    //   final item = widget.items[i];
-    //   final card = _buildCard(item);
-    //   _cards.add(card);
-    // }
-
-    for (var item in widget.items) {
+    for (int i = 0; i < widget.items.length; i++) {
+      final item = widget.items[i];
       final card = _buildCard(item);
       _cards.add(card);
     }
   }
 
-  // Widget _buildCard(T item) {
-  //   return 
-  // }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return Center(
-        child: widget.loadingWidget,
-      );
-    }
-    if (_currentIndex >= widget.items.length) {
-      return const Center(
-        child: widget.emptyWidget,
-      );
-    }
-
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ...List.generate(
-            widget.items.length,
-            (index) {
-              final cardIndex = index + 1;
-              if (cardIndex >= widget.items.length)
-                return const SizedBox.shrink();
-
-              // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
-              // final offset = cardIndex * 10.0;
-
-              return Positioned(
-                top: 0,
-                child: CustomGestureHandler(
+  Widget _buildCard(T item) {
+    return CustomGestureHandler(
       onSwipe: (direction) {
         widget.onSwipe(item, direction);
         setState(() {
@@ -128,7 +84,33 @@ class _CardStackState<T> extends State<CardStack<T>> {
         ),
         child: widget.cardBuilder(item),
       ),
-    ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_currentIndex >= widget.items.length) {
+      return const Center(
+        child: Text('No more cards'),
+      );
+    }
+
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ...List.generate(
+            math.min(widget.backgroundCardCount, _cards.length - 1),
+            (index) {
+              final cardIndex = index + 1;
+              if (cardIndex >= _cards.length) return const SizedBox.shrink();
+
+              // final scale = 1.0 - (cardIndex) * (1.0 - widget.scaleFactor);
+              // final offset = cardIndex * 10.0;
+
+              return Positioned(
+                top: 0,
+                child: _cards[cardIndex],
               );
             },
           ),
