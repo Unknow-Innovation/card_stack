@@ -18,10 +18,15 @@ class CardStack<T> extends StatefulWidget {
   final double threshold;
   final Duration animationDuration;
   final int backgroundCardCount;
+  final Widget emptyWidget;
+  final Widget loadingWidget;
+  final bool isLoading;
 
   const CardStack({
     super.key,
     required this.items,
+    required this.emptyWidget,
+    required this.loadingWidget,
     required this.cardBuilder,
     required this.onSwipe,
     this.cardWidth = 300,
@@ -31,6 +36,7 @@ class CardStack<T> extends StatefulWidget {
     this.threshold = 100.0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.backgroundCardCount = 2,
+    this.isLoading,
   });
 
   @override
@@ -89,9 +95,14 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentIndex >= widget.items.length) {
+    if(widget.isLoading) {
+      return Center(
+        child: widget.loadingWidget,
+      )
+    }
+    if (widget.items.isEmpty) {
       return const Center(
-        child: Text('No more cards'),
+        child: widget.emptyWidget,
       );
     }
 
