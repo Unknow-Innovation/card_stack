@@ -98,7 +98,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
     if(widget.isLoading) {
       return Center(
         child: widget.loadingWidget,
-      )
+      );
     }
     if (widget.items.isEmpty) {
       return const Center(
