@@ -36,7 +36,7 @@ class CardStack<T> extends StatefulWidget {
     this.threshold = 100.0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.backgroundCardCount = 2,
-    this.isLoading,
+    this.isLoading = false,
   });
 
   @override
