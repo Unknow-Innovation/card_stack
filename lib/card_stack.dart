@@ -1,15 +1,12 @@
-import 'dart:developer';
-
 import 'package:card_stack/config/enums.dart';
+import 'package:card_stack/controllers/card_swipe_controller.dart';
 import 'package:card_stack/widgets/custom_gesture_handler.dart';
 import 'package:flutter/material.dart';
-
-import 'dart:math' as math;
-
 export 'package:card_stack/config/enums.dart';
 export 'package:card_stack/card_stack.dart';
+export 'package:card_stack/controllers/card_swipe_controller.dart';
 
-class CardStack<T> extends StatefulWidget {
+class CardStack<T> extends StatelessWidget {
   final List<T> items;
   final Widget Function(T item) cardBuilder;
   final Function(T item, Direction direction) onSwipe;
@@ -23,6 +20,7 @@ class CardStack<T> extends StatefulWidget {
   final Widget emptyWidget;
   final Widget loadingWidget;
   final bool isLoading;
+  final CardSwipeController? controller;
 
   const CardStack({
     super.key,
@@ -32,59 +30,28 @@ class CardStack<T> extends StatefulWidget {
     required this.emptyWidget,
     required this.loadingWidget,
     required this.isLoading,
+    this.controller,
     this.cardWidth = 300,
     this.cardHeight = 400,
     this.scaleFactor = 0.9,
     this.rotationFactor = 0.7,
-    this.threshold = 100.0,
+    this.threshold = 150.0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.backgroundCardCount = 2,
   });
 
-  @override
-  State<CardStack<T>> createState() => _CardStackState<T>();
-}
-
-class _CardStackState<T> extends State<CardStack<T>> {
-  final List<Widget> _cards = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeCards();
-  }
-
-  @override
-  void didUpdateWidget(covariant CardStack<T> oldWidget) {
-    _initializeCards();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _initializeCards() {
-    log(widget.items.toString());
-    _cards.clear();
-    for (int i = 0; i < widget.items.length; i++) {
-      final item = widget.items[i];
-      final card = _buildCard(item);
-      _cards.add(card);
-    }
-  }
-
   Widget _buildCard(T item) {
     return CustomGestureHandler(
       onSwipe: (direction) {
-        widget.onSwipe(item, direction);
-        setState(() {
-          _initializeCards();
-        });
+        onSwipe(item, direction);
       },
-      threshold: widget.threshold,
-      rotationFactor: widget.rotationFactor,
-      scaleFactor: widget.scaleFactor,
-      animationDuration: widget.animationDuration,
+      threshold: threshold,
+      rotationFactor: rotationFactor,
+      scaleFactor: scaleFactor,
+      animationDuration: animationDuration,
       child: Container(
-        width: widget.cardWidth,
-        height: widget.cardHeight,
+        width: cardWidth,
+        height: cardHeight,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -95,41 +62,36 @@ class _CardStackState<T> extends State<CardStack<T>> {
             ),
           ],
         ),
-        child: widget.cardBuilder(item),
+        child: cardBuilder(item),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
+    if (isLoading) {
       return Center(
-        child: widget.loadingWidget,
+        child: loadingWidget,
       );
     }
-    if (_cards.isEmpty) {
+    if (items.isEmpty) {
       return Center(
-        child: widget.emptyWidget,
+        child: emptyWidget,
       );
     }
     return Center(
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (_cards.length >= 2)
-            ...List.generate(
-              math.min(widget.backgroundCardCount, _cards.length - 1),
-              (index) {
-                final cardIndex = index + 1;
-                if (cardIndex >= _cards.length) return widget.emptyWidget;
-
-                return Positioned(
-                  top: 0,
-                  child: _cards[cardIndex],
-                );
-              },
-            ),
-          _cards.first,
+          ...List.generate(
+            items.length,
+            (index) {
+              return Positioned(
+                top: 0,
+                child: _buildCard((items[index])),
+              );
+            },
+          )
         ],
       ),
     );
