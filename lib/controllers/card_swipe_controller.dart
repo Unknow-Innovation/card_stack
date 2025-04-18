@@ -1,13 +1,17 @@
-import 'dart:developer';
 import 'package:card_stack/config/enums.dart';
 import 'package:flutter/material.dart';
 
-class CardSwipeController extends ChangeNotifier {
+class CardSwipeController<T> extends ChangeNotifier {
   // Animation controller
   late AnimationController animationController;
   late Animation<Offset> animation;
   late Animation<double> rotationAnimation;
   late Animation<double> scaleAnimation;
+  T? _item;
+
+  set setItem(T item) {
+    _item = item;
+  }
 
   BuildContext context;
 
@@ -25,7 +29,7 @@ class CardSwipeController extends ChangeNotifier {
   final double rotationFactor;
   final double scaleFactor;
   final Duration animationDuration;
-  final Function(Direction) onSwipe;
+  final Function(Direction, T) onSwipe;
 
   // Getters
   Offset get dragPosition => _dragPosition;
@@ -70,14 +74,11 @@ class CardSwipeController extends ChangeNotifier {
     _dragPosition = details.globalPosition - _dragStart;
 
     // Calculate rotation based on horizontal drag
-    _rotation = (_dragPosition.dx / 110) * rotationFactor;
+    _rotation = (_dragPosition.dx / 100) * rotationFactor;
 
     // Calculate scale based on vertical drag
-    _scale = 1.0 - (_dragPosition.dy.abs() / (110 * 2)) * (1 - scaleFactor);
+    _scale = 1.0 - (_dragPosition.dy.abs() / (100 * 2)) * (1 - scaleFactor);
 
-    // Check if we've reached the threshold
-    debugPrint("${_dragPosition.distance} > $threshold");
-    log("${_dragPosition.distance > threshold}");
     _shouldSwipe = _dragPosition.distance > threshold;
 
     notifyListeners();
@@ -130,7 +131,7 @@ class CardSwipeController extends ChangeNotifier {
     notifyListeners();
 
     animationController.forward().then((_) {
-      onSwipe(direction ?? calculatedDirection);
+      onSwipe(direction ?? calculatedDirection, _item as T);
       _resetCard();
     });
   }

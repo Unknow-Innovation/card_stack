@@ -6,10 +6,10 @@ export 'package:card_stack/config/enums.dart';
 export 'package:card_stack/card_stack.dart';
 export 'package:card_stack/controllers/card_swipe_controller.dart';
 
-class CardStack<T> extends StatelessWidget {
+class CardStack<T> extends StatefulWidget {
   final List<T> items;
   final Widget Function(T item) cardBuilder;
-  final Function(T item, Direction direction) onSwipe;
+
   final double cardWidth;
   final double cardHeight;
   final double scaleFactor;
@@ -20,63 +20,101 @@ class CardStack<T> extends StatelessWidget {
   final Widget emptyWidget;
   final Widget loadingWidget;
   final bool isLoading;
-  final CardSwipeController? controller;
+  final CardSwipeController controller;
 
   const CardStack({
     super.key,
     required this.items,
     required this.cardBuilder,
-    required this.onSwipe,
     required this.emptyWidget,
     required this.loadingWidget,
     required this.isLoading,
-    this.controller,
+    required this.controller,
     this.cardWidth = 300,
     this.cardHeight = 400,
     this.scaleFactor = 0.9,
     this.rotationFactor = 0.7,
     this.threshold = 150.0,
-    this.animationDuration = const Duration(milliseconds: 300),
+    this.animationDuration = const Duration(milliseconds: 600),
     this.backgroundCardCount = 2,
   });
 
-  Widget _buildCard(T item) {
-    return CustomGestureHandler(
-      onSwipe: (direction) {
-        onSwipe(item, direction);
-      },
-      threshold: threshold,
-      rotationFactor: rotationFactor,
-      scaleFactor: scaleFactor,
-      animationDuration: animationDuration,
-      child: Container(
-        width: cardWidth,
-        height: cardHeight,
+  @override
+  State<CardStack<T>> createState() => _CardStackState<T>();
+}
+
+class _CardStackState<T> extends State<CardStack<T>> {
+  int _activeCardIndex = 0;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _controller = widget.controller
+  // }
+
+  // @override
+  // void dispose() {
+  //   if (widget.controller == null) {
+  //     _controller.dispose();
+  //   }
+  //   super.dispose();
+  // }
+
+  Widget _buildCard(T item, int index) {
+    // Only apply gesture handling to the active card
+    if (index != widget.items.length - 1) {
+      return Container(
+        width: widget.cardWidth,
+        height: widget.cardHeight,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
               spreadRadius: 2,
             ),
           ],
         ),
-        child: cardBuilder(item),
+        child: widget.cardBuilder(item),
+      );
+    }
+    widget.controller.setItem = item;
+    return CustomGestureHandler<T>(
+      item: item,
+      controller: widget.controller,
+      threshold: widget.threshold,
+      rotationFactor: widget.rotationFactor,
+      scaleFactor: widget.scaleFactor,
+      animationDuration: widget.animationDuration,
+      child: Container(
+        width: widget.cardWidth,
+        height: widget.cardHeight,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: widget.cardBuilder(item),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    if (widget.isLoading) {
       return Center(
-        child: loadingWidget,
+        child: widget.loadingWidget,
       );
     }
-    if (items.isEmpty) {
+    if (widget.items.isEmpty) {
       return Center(
-        child: emptyWidget,
+        child: widget.emptyWidget,
       );
     }
     return Center(
@@ -84,16 +122,30 @@ class CardStack<T> extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           ...List.generate(
-            items.length,
+            widget.items.length,
             (index) {
               return Positioned(
                 top: 0,
-                child: _buildCard((items[index])),
+                child: _buildCard(widget.items[index], index),
               );
             },
           )
         ],
       ),
     );
+  }
+
+  // Method to programmatically swipe the active card
+  void swipeCard(Direction direction) {
+    if (_activeCardIndex < widget.items.length) {
+      widget.controller.animateToDirection(direction);
+    }
+  }
+
+  // Method to reset the stack
+  void resetStack() {
+    setState(() {
+      _activeCardIndex = 0;
+    });
   }
 }

@@ -1,11 +1,11 @@
-import 'package:card_stack/config/enums.dart';
 import 'package:card_stack/controllers/card_swipe_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CustomGestureHandler extends StatefulWidget {
+class CustomGestureHandler<T> extends StatefulWidget {
   final Widget child;
-  final Function(Direction) onSwipe;
+  final T item;
+
   final double threshold;
   final double rotationFactor;
   final double scaleFactor;
@@ -15,7 +15,7 @@ class CustomGestureHandler extends StatefulWidget {
   const CustomGestureHandler({
     super.key,
     required this.child,
-    required this.onSwipe,
+    required this.item,
     this.controller,
     this.threshold = 150.0,
     this.rotationFactor = 0.1,
@@ -29,33 +29,35 @@ class CustomGestureHandler extends StatefulWidget {
 
 class _CustomGestureHandlerState extends State<CustomGestureHandler>
     with SingleTickerProviderStateMixin {
-  late CardSwipeController _controller;
+  // late CardSwipeController _controller;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = widget.controller ??
-        CardSwipeController(
-          context: context,
-          vsync: this,
-          onSwipe: widget.onSwipe,
-          threshold: widget.threshold,
-          rotationFactor: widget.rotationFactor,
-          scaleFactor: widget.scaleFactor,
-          animationDuration: widget.animationDuration,
-        );
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _controller = widget.controller ??
+  //       CardSwipeController(
+  //         context: context,
+  //         vsync: this,
+  //         onSwipe: (direction) {
+  //           widget.onSwipe.call(direction, widget.item);
+  //         },
+  //         threshold: widget.threshold,
+  //         rotationFactor: widget.rotationFactor,
+  //         scaleFactor: widget.scaleFactor,
+  //         animationDuration: widget.animationDuration,
+  //       );
+  // }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _controller.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: _controller,
+      value: widget.controller,
       child: Consumer<CardSwipeController>(
         builder: (context, controller, child) {
           return GestureDetector(
