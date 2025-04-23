@@ -108,7 +108,7 @@ class CardSwipeController<T> extends ChangeNotifier {
       end: endOffset,
     ).animate(CurvedAnimation(
       parent: animationController,
-      curve: Curves.easeOut,
+      curve: Curves.easeInOut,
     ));
 
     rotationAnimation = Tween<double>(
@@ -116,7 +116,7 @@ class CardSwipeController<T> extends ChangeNotifier {
       end: (direction ?? calculatedDirection) == Direction.right ? 0.5 : -0.5,
     ).animate(CurvedAnimation(
       parent: animationController,
-      curve: Curves.easeOut,
+      curve: Curves.easeInOut,
     ));
 
     scaleAnimation = Tween<double>(
@@ -124,7 +124,7 @@ class CardSwipeController<T> extends ChangeNotifier {
       end: 0.0,
     ).animate(CurvedAnimation(
       parent: animationController,
-      curve: Curves.easeOut,
+      curve: Curves.easeInOut,
     ));
 
     _isSwiping = true;

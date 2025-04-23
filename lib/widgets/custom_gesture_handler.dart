@@ -29,31 +29,6 @@ class CustomGestureHandler<T> extends StatefulWidget {
 
 class _CustomGestureHandlerState extends State<CustomGestureHandler>
     with SingleTickerProviderStateMixin {
-  // late CardSwipeController _controller;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller = widget.controller ??
-  //       CardSwipeController(
-  //         context: context,
-  //         vsync: this,
-  //         onSwipe: (direction) {
-  //           widget.onSwipe.call(direction, widget.item);
-  //         },
-  //         threshold: widget.threshold,
-  //         rotationFactor: widget.rotationFactor,
-  //         scaleFactor: widget.scaleFactor,
-  //         animationDuration: widget.animationDuration,
-  //       );
-  // }
-
-  // @override
-  // void dispose() {
-  //   _controller.dispose();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(

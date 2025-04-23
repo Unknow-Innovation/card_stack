@@ -15,6 +15,7 @@ class CardStack<T> extends StatefulWidget {
   final double scaleFactor;
   final double rotationFactor;
   final double threshold;
+
   final Duration animationDuration;
   final int backgroundCardCount;
   final Widget emptyWidget;
@@ -63,20 +64,22 @@ class _CardStackState<T> extends State<CardStack<T>> {
   Widget _buildCard(T item, int index) {
     // Only apply gesture handling to the active card
     if (index != widget.items.length - 1) {
-      return Container(
-        width: widget.cardWidth,
-        height: widget.cardHeight,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
+      return RepaintBoundary(
+        child: Container(
+          width: widget.cardWidth,
+          height: widget.cardHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: widget.cardBuilder(item),
         ),
-        child: widget.cardBuilder(item),
       );
     }
     widget.controller.setItem = item;
@@ -107,6 +110,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.items.length);
     if (widget.isLoading) {
       return Center(
         child: widget.loadingWidget,
