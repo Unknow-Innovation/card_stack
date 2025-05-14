@@ -132,7 +132,7 @@ class CardSwipeController<T> extends ChangeNotifier {
 
     animationController.forward().then((_) {
       onSwipe(direction ?? calculatedDirection, _item as T);
-      _startResetAnimation();
+      _resetCard();
     });
   }
 
@@ -196,5 +196,16 @@ class CardSwipeController<T> extends ChangeNotifier {
       _shouldSwipe = false;
       notifyListeners();
     });
+  }
+
+  void _resetCard() {
+    _dragPosition = Offset.zero;
+    _rotation = 0.0;
+    _scale = 1.0;
+    _isDragging = false;
+    _isSwiping = false;
+    _shouldSwipe = false;
+    animationController.reset();
+    notifyListeners();
   }
 }
