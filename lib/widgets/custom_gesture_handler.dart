@@ -55,9 +55,9 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
                 return Transform(
                   transform: Matrix4.identity()
                     ..translate(offset.dx, offset.dy)
-                    ..rotateZ(rotation)
+                    ..rotateZ(-rotation)
                     ..scale(scale),
-                  child: child,
+                  child: RepaintBoundary(child: child),
                 );
               },
               child: widget.child,

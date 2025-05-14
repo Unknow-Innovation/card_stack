@@ -44,7 +44,7 @@ class CardSwipeController<T> extends ChangeNotifier {
     required this.context,
     required this.onSwipe,
     this.threshold = 150.0,
-    this.rotationFactor = 0.1,
+    this.rotationFactor = 0.15,
     this.scaleFactor = 0.9,
     this.animationDuration = const Duration(milliseconds: 300),
   }) {
@@ -93,7 +93,7 @@ class CardSwipeController<T> extends ChangeNotifier {
     if (_shouldSwipe || velocity.distance > 500) {
       _startSwipeAnimation(null);
     } else {
-      _resetCard();
+      _startResetAnimation();
     }
   }
 
@@ -132,7 +132,7 @@ class CardSwipeController<T> extends ChangeNotifier {
 
     animationController.forward().then((_) {
       onSwipe(direction ?? calculatedDirection, _item as T);
-      _resetCard();
+      _startResetAnimation();
     });
   }
 
@@ -162,14 +162,39 @@ class CardSwipeController<T> extends ChangeNotifier {
   void animateToDirection(Direction direction) =>
       _startSwipeAnimation(direction);
 
-  void _resetCard() {
-    _dragPosition = Offset.zero;
-    _rotation = 0.0;
-    _scale = 1.0;
-    _isDragging = false;
-    _isSwiping = false;
-    _shouldSwipe = false;
-    animationController.reset();
+  void _startResetAnimation() {
+    final resetAnimation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    );
+
+    animation = Tween<Offset>(
+      begin: _dragPosition,
+      end: Offset.zero,
+    ).animate(resetAnimation);
+
+    rotationAnimation = Tween<double>(
+      begin: _rotation,
+      end: 0.0,
+    ).animate(resetAnimation);
+
+    scaleAnimation = Tween<double>(
+      begin: _scale,
+      end: 1.0,
+    ).animate(resetAnimation);
+
+    _isSwiping = true;
     notifyListeners();
+
+    animationController.forward(from: 0.0).then((_) {
+      animationController.reset();
+      _dragPosition = Offset.zero;
+      _rotation = 0.0;
+      _scale = 1.0;
+      _isDragging = false;
+      _isSwiping = false;
+      _shouldSwipe = false;
+      notifyListeners();
+    });
   }
 }
