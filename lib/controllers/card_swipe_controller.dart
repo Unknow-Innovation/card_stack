@@ -208,4 +208,46 @@ class CardSwipeController<T> extends ChangeNotifier {
     animationController.reset();
     notifyListeners();
   }
+
+  void resetWithDirection({
+    required Direction swipeDirection,
+    required T data,
+  }) {
+    _item = data;
+    final screenSize = MediaQuery.of(context).size;
+    final startOffset = _calculateEndOffset(swipeDirection, screenSize);
+
+    print("Start Offset resetWithDirection $startOffset");
+
+    animation = Tween<Offset>(
+      begin: startOffset,
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    rotationAnimation = Tween<double>(
+      begin: swipeDirection == Direction.right ? 0.5 : -0.5,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    scaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _isSwiping = true;
+    notifyListeners();
+
+    animationController.forward(from: 0.0).then((_) {
+      _resetCard();
+    });
+  }
 }
