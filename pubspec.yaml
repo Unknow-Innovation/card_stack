@@ -1,8 +1,7 @@
 name: card_stack
-description: "A new Flutter package project."
-version: 0.0.1
-homepage:
-
+version: 1.0.0
+description: A proprietary card swiper component.
+license: LICENSE
 environment:
   sdk: ^3.6.0
   flutter: ">=1.17.0"
