@@ -17,6 +17,8 @@ class CardSwipeController<T> extends ChangeNotifier {
     _item = item;
   }
 
+  T? get item => _item;
+
   BuildContext context;
 
   // State variables

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 export 'package:card_stack/config/enums.dart';
 export 'package:card_stack/card_stack.dart';
 export 'package:card_stack/controllers/card_swipe_controller.dart';
+export 'package:provider/provider.dart';
 
 class CardStack<T> extends StatefulWidget {
   final List<T> items;
@@ -19,12 +20,16 @@ class CardStack<T> extends StatefulWidget {
   final double scaleFactor;
   final double rotationFactor;
   final double threshold;
+  final Decoration? decoration;
   final Duration animationDuration;
   final int backgroundCardCount;
-  final Widget emptyWidget;
-  final Widget loadingWidget;
   final bool isLoading;
   final CardSwipeController controller;
+  final Widget emptyWidget;
+  final Widget loadingWidget;
+  final Widget? likeSticker;
+  final Widget? dislikeSticker;
+  final Widget? superLikeSticker;
 
   const CardStack({
     super.key,
@@ -34,6 +39,10 @@ class CardStack<T> extends StatefulWidget {
     required this.loadingWidget,
     required this.isLoading,
     required this.controller,
+    this.decoration,
+    this.likeSticker,
+    this.dislikeSticker,
+    this.superLikeSticker,
     this.cardWidth = 300,
     this.cardHeight = 400,
     this.scaleFactor = 0.9,
@@ -52,16 +61,17 @@ class _CardStackState<T> extends State<CardStack<T>> {
     final card = Container(
       width: widget.cardWidth,
       height: widget.cardHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            spreadRadius: 2,
+      decoration: widget.decoration ??
+          BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
           ),
-        ],
-      ),
       child: widget.cardBuilder(item),
     );
 
