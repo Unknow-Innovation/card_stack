@@ -27,9 +27,9 @@ class CardStack<T> extends StatefulWidget {
   final CardSwipeController controller;
   final Widget emptyWidget;
   final Widget loadingWidget;
-  final Widget? likeSticker;
-  final Widget? dislikeSticker;
-  final Widget? superLikeSticker;
+  final Widget? likePositionIndicater;
+  final Widget? dislikePositionIndicater;
+  final Widget? superLikePositionIndicater;
 
   const CardStack({
     super.key,
@@ -40,9 +40,9 @@ class CardStack<T> extends StatefulWidget {
     required this.isLoading,
     required this.controller,
     this.decoration,
-    this.likeSticker,
-    this.dislikeSticker,
-    this.superLikeSticker,
+    this.likePositionIndicater,
+    this.dislikePositionIndicater,
+    this.superLikePositionIndicater,
     this.cardWidth = 300,
     this.cardHeight = 400,
     this.scaleFactor = 0.9,
@@ -63,13 +63,13 @@ class _CardStackState<T> extends State<CardStack<T>> {
       height: widget.cardHeight,
       decoration: widget.decoration ??
           BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                  offset: Offset(6, 6)),
             ],
           ),
       child: widget.cardBuilder(item),

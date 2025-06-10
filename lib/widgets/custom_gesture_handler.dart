@@ -2,6 +2,7 @@
 /// This file is part of the proprietary CardStack library.
 /// Unauthorized use or distribution is strictly prohibited.
 
+import 'package:card_stack/config/enums.dart';
 import 'package:card_stack/controllers/card_swipe_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,9 +10,9 @@ import 'package:provider/provider.dart';
 class CustomGestureHandler<T> extends StatefulWidget {
   final Widget child;
   final T item;
-  final Widget? likeSticker;
-  final Widget? dislikeSticker;
-  final Widget? superLikeSticker;
+  final Widget? likePositionIndicater;
+  final Widget? dislikePositionIndicater;
+  final Widget? superLikePositionIndicater;
 
   final double threshold;
   final double rotationFactor;
@@ -24,9 +25,9 @@ class CustomGestureHandler<T> extends StatefulWidget {
     required this.child,
     required this.item,
     this.controller,
-    this.likeSticker,
-    this.dislikeSticker,
-    this.superLikeSticker,
+    this.likePositionIndicater,
+    this.dislikePositionIndicater,
+    this.superLikePositionIndicater,
     this.threshold = 150.0,
     this.rotationFactor = 0.1,
     this.scaleFactor = 0.9,
@@ -62,18 +63,93 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
                     ? controller.scaleAnimation.value
                     : controller.scale;
 
-                return Transform(
-                  transform: Matrix4.identity()
-                    ..translate(offset.dx, offset.dy)
-                    ..rotateZ(-rotation)
-                    ..scale(scale),
-                  child: RepaintBoundary(child: child),
+                return Stack(
+                  children: [
+                    Transform(
+                      transform: Matrix4.identity()
+                        ..translate(offset.dx, offset.dy)
+                        ..rotateZ(-rotation)
+                        ..scale(scale),
+                      child: RepaintBoundary(child: child),
+                    ),
+
+                    // Directional Stickers
+                    if (widget.likePositionIndicater != null)
+                      _buildAnimatedSticker(
+                        direction: Direction.right,
+                        offset: offset,
+                        sticker: widget.likePositionIndicater,
+                      ),
+                    if (widget.dislikePositionIndicater != null)
+                      _buildAnimatedSticker(
+                        direction: Direction.left,
+                        offset: offset,
+                        sticker: widget.dislikePositionIndicater,
+                      ),
+                    if (widget.superLikePositionIndicater != null)
+                      _buildAnimatedSticker(
+                        direction: Direction.up,
+                        offset: offset,
+                        sticker: widget.superLikePositionIndicater,
+                      ),
+                  ],
                 );
               },
               child: widget.child,
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAnimatedSticker({
+    required Direction direction,
+    required Offset offset,
+    required Widget? sticker,
+  }) {
+    final controller = widget.controller!;
+    final drag = controller.dragPosition;
+
+    // Determine if this sticker should be visible
+    final show = controller.dragDirection == direction;
+    final opacity =
+        show ? (drag.distance / controller.threshold).clamp(0.0, 1.0) : 0.0;
+
+    // Entrance animation: sticker slides in from opposite direction
+    Offset translation = Offset.zero;
+    final size = MediaQuery.sizeOf(context);
+    switch (direction) {
+      case Direction.right:
+        translation =
+            Offset(-(size.width * 0.5) + offset.dx / 2, 0); // Enter from left
+        break;
+      case Direction.left:
+        translation =
+            Offset(size.width * 0.5 + offset.dx / 2, 0); // Enter from right
+        break;
+      case Direction.up:
+        translation =
+            Offset(0, (size.height * 0.4) + offset.dy / 2); // Enter from bottom
+        break;
+      case Direction.down:
+        // translation =
+        //     Offset(0, -50 + offset.dy / 4); // Optional: enter from top
+        break;
+    }
+
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          duration: Duration(milliseconds: 100),
+          opacity: opacity,
+          child: Transform.translate(
+            offset: translation,
+            child: Center(
+              child: sticker,
+            ),
+          ),
+        ),
       ),
     );
   }

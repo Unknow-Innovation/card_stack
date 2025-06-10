@@ -256,4 +256,14 @@ class CardSwipeController<T> extends ChangeNotifier {
       _resetCard();
     });
   }
+
+  Direction? get dragDirection {
+    if (_dragPosition == Offset.zero) return null;
+    final isHorizontal = _dragPosition.dx.abs() > _dragPosition.dy.abs();
+    if (isHorizontal) {
+      return _dragPosition.dx > 0 ? Direction.right : Direction.left;
+    } else {
+      return _dragPosition.dy < 0 ? Direction.up : Direction.down;
+    }
+  }
 }
