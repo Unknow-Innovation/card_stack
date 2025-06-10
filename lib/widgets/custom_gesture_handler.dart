@@ -113,8 +113,9 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
 
     // Determine if this sticker should be visible
     final show = controller.dragDirection == direction;
-    final opacity =
-        show ? (drag.distance / controller.threshold).clamp(0.0, 1.0) : 0.0;
+    final opacity = show
+        ? (drag.distance / (controller.threshold + 120)).clamp(0.0, 1.0)
+        : 0.0;
 
     // Entrance animation: sticker slides in from opposite direction
     Offset translation = Offset.zero;
