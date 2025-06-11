@@ -4,9 +4,11 @@
 
 import 'dart:math';
 
+import 'package:card_stack/config/enums.dart';
 import 'package:card_stack/controllers/card_swipe_controller.dart';
 import 'package:card_stack/widgets/custom_gesture_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 export 'package:card_stack/config/enums.dart';
 export 'package:card_stack/card_stack.dart';
 export 'package:card_stack/controllers/card_swipe_controller.dart';
@@ -110,25 +112,123 @@ class _CardStackState<T> extends State<CardStack<T>> {
         .toList();
 
     return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: List.generate(visibleItems.length, (i) {
-          final item = visibleItems[i];
-          final isTop = i == visibleItems.length - 1;
-          final visualIndex = visibleItems.length - 1 - i;
+      child: ChangeNotifierProvider.value(
+        value: widget.controller,
+        child: Consumer<CardSwipeController>(
+          builder: (context, controller, child) {
+            return AnimatedBuilder(
+              animation: controller.animationController,
+              builder: (context, child) {
+                final offset = controller.isSwiping
+                    ? controller.animation.value
+                    : controller.dragPosition;
+                return Stack(alignment: Alignment.center, children: [
+                  child!,
+                  // Directional Stickers
+                  if (widget.likePositionIndicater != null)
+                    _buildAnimatedSticker(
+                      controller: controller,
+                      size: widget.screenSize,
+                      direction: Direction.right,
+                      offset: offset,
+                      sticker: widget.likePositionIndicater,
+                    ),
+                  if (widget.dislikePositionIndicater != null)
+                    _buildAnimatedSticker(
+                      controller: controller,
+                      size: widget.screenSize,
+                      direction: Direction.left,
+                      offset: offset,
+                      sticker: widget.dislikePositionIndicater,
+                    ),
+                  if (widget.superLikePositionIndicater != null)
+                    _buildAnimatedSticker(
+                      controller: controller,
+                      size: widget.screenSize,
+                      direction: Direction.up,
+                      offset: offset,
+                      sticker: widget.superLikePositionIndicater,
+                    ),
+                ]);
+              },
+              child: Stack(
+                children: List.generate(visibleItems.length, (i) {
+                  final item = visibleItems[i];
+                  final isTop = i == visibleItems.length - 1;
+                  final visualIndex = visibleItems.length - 1 - i;
 
-          if (isTop) widget.controller.setItem = item;
+                  if (isTop) widget.controller.setItem = item;
 
-          return Positioned(
-            top: 0,
-            child: _buildCard(
-              item,
-              isTop,
-              visualIndex,
-              widget.screenSize,
+                  return Positioned(
+                    top: 0,
+                    child: _buildCard(
+                      item,
+                      isTop,
+                      visualIndex,
+                      widget.screenSize,
+                    ),
+                  );
+                }),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedSticker({
+    required Direction direction,
+    required Offset offset,
+    required Size size,
+    required Widget? sticker,
+    required CardSwipeController controller,
+  }) {
+    // final controller = widget.controller!;
+    final drag = controller.dragPosition;
+
+    // Determine if this sticker should be visible
+    final show = controller.dragDirection == direction;
+    final opacity = show
+        ? (drag.distance / (controller.threshold + 120)).clamp(0.0, 1.0)
+        : 0.0;
+
+    // Entrance animation: sticker slides in from opposite direction
+    Offset translation = Offset.zero;
+
+    switch (direction) {
+      case Direction.right:
+        translation =
+            Offset(-(size.width * 0.5) + offset.dx / 4, 0); // Enter from left
+        break;
+      case Direction.left:
+        translation =
+            Offset(size.width * 0.5 + offset.dx / 4, 0); // Enter from right
+        break;
+      case Direction.up:
+        translation =
+            Offset(0, (size.height * 0.4) + offset.dy / 4); // Enter from bottom
+        break;
+      case Direction.down:
+        // translation =
+        //     Offset(0, -50 + offset.dy / 4); // Optional: enter from top
+        break;
+    }
+
+    return Positioned.fill(
+      child: RepaintBoundary(
+        child: IgnorePointer(
+          child: AnimatedOpacity(
+            duration: Duration(milliseconds: 100),
+            opacity: opacity,
+            child: Transform.translate(
+              offset: translation,
+              child: Center(
+                child: sticker,
+              ),
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }

@@ -73,32 +73,6 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
                         ..scale(scale),
                       child: RepaintBoundary(child: child),
                     ),
-
-                    // Directional Stickers
-                    if (widget.likePositionIndicater != null)
-                      _buildAnimatedSticker(
-                        controller: controller,
-                        size: widget.screenSize,
-                        direction: Direction.right,
-                        offset: offset,
-                        sticker: widget.likePositionIndicater,
-                      ),
-                    if (widget.dislikePositionIndicater != null)
-                      _buildAnimatedSticker(
-                        controller: controller,
-                        size: widget.screenSize,
-                        direction: Direction.left,
-                        offset: offset,
-                        sticker: widget.dislikePositionIndicater,
-                      ),
-                    if (widget.superLikePositionIndicater != null)
-                      _buildAnimatedSticker(
-                        controller: controller,
-                        size: widget.screenSize,
-                        direction: Direction.up,
-                        offset: offset,
-                        sticker: widget.superLikePositionIndicater,
-                      ),
                   ],
                 );
               },
@@ -106,60 +80,6 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildAnimatedSticker({
-    required Direction direction,
-    required Offset offset,
-    required Size size,
-    required Widget? sticker,
-    required CardSwipeController controller,
-  }) {
-    // final controller = widget.controller!;
-    final drag = controller.dragPosition;
-
-    // Determine if this sticker should be visible
-    final show = controller.dragDirection == direction;
-    final opacity = show
-        ? (drag.distance / (controller.threshold + 120)).clamp(0.0, 1.0)
-        : 0.0;
-
-    // Entrance animation: sticker slides in from opposite direction
-    Offset translation = Offset.zero;
-
-    switch (direction) {
-      case Direction.right:
-        translation =
-            Offset(-(size.width * 0.5) + offset.dx / 4, 0); // Enter from left
-        break;
-      case Direction.left:
-        translation =
-            Offset(size.width * 0.5 + offset.dx / 4, 0); // Enter from right
-        break;
-      case Direction.up:
-        translation =
-            Offset(0, (size.height * 0.4) + offset.dy / 4); // Enter from bottom
-        break;
-      case Direction.down:
-        // translation =
-        //     Offset(0, -50 + offset.dy / 4); // Optional: enter from top
-        break;
-    }
-
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: AnimatedOpacity(
-          duration: Duration(milliseconds: 100),
-          opacity: opacity,
-          child: Transform.translate(
-            offset: translation,
-            child: Center(
-              child: sticker,
-            ),
-          ),
-        ),
       ),
     );
   }
