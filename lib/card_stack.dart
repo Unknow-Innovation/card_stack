@@ -20,6 +20,7 @@ class CardStack<T> extends StatefulWidget {
   final double scaleFactor;
   final double rotationFactor;
   final double threshold;
+  final Size screenSize;
   final Decoration? decoration;
   final Duration animationDuration;
   final int backgroundCardCount;
@@ -39,6 +40,7 @@ class CardStack<T> extends StatefulWidget {
     required this.loadingWidget,
     required this.isLoading,
     required this.controller,
+    required this.screenSize,
     this.decoration,
     this.likePositionIndicater,
     this.dislikePositionIndicater,
@@ -57,7 +59,7 @@ class CardStack<T> extends StatefulWidget {
 }
 
 class _CardStackState<T> extends State<CardStack<T>> {
-  Widget _buildCard(T item, bool isTopCard, int visualIndex) {
+  Widget _buildCard(T item, bool isTopCard, int visualIndex, Size screenSize) {
     final card = Container(
       width: widget.cardWidth,
       height: widget.cardHeight,
@@ -79,6 +81,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
         ? CustomGestureHandler<T>(
             item: item,
             controller: widget.controller,
+            screenSize: screenSize,
             threshold: widget.threshold,
             rotationFactor: widget.rotationFactor,
             scaleFactor: widget.scaleFactor,
@@ -118,7 +121,12 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
           return Positioned(
             top: 0,
-            child: _buildCard(item, isTop, visualIndex),
+            child: _buildCard(
+              item,
+              isTop,
+              visualIndex,
+              widget.screenSize,
+            ),
           );
         }),
       ),

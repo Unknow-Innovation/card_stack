@@ -19,8 +19,6 @@ class CardSwipeController<T> extends ChangeNotifier {
 
   T? get item => _item;
 
-  BuildContext context;
-
   // State variables
   Offset _dragStart = Offset.zero;
   Offset _dragPosition = Offset.zero;
@@ -35,6 +33,7 @@ class CardSwipeController<T> extends ChangeNotifier {
   final double rotationFactor;
   final double scaleFactor;
   final Duration animationDuration;
+  final Size screenSize;
   final Function(Direction, T) onSwipe;
 
   // Getters
@@ -47,7 +46,7 @@ class CardSwipeController<T> extends ChangeNotifier {
 
   CardSwipeController({
     required TickerProvider vsync,
-    required this.context,
+    required this.screenSize,
     required this.onSwipe,
     this.threshold = 150.0,
     this.rotationFactor = 0.15,
@@ -105,7 +104,7 @@ class CardSwipeController<T> extends ChangeNotifier {
 
   void _startSwipeAnimation(Direction? direction) {
     final calculatedDirection = _calculateSwipeDirection();
-    final screenSize = MediaQuery.of(context).size;
+
     final endOffset =
         _calculateEndOffset(direction ?? calculatedDirection, screenSize);
 
@@ -220,7 +219,7 @@ class CardSwipeController<T> extends ChangeNotifier {
     required T data,
   }) {
     _item = data;
-    final screenSize = MediaQuery.of(context).size;
+
     final startOffset = _calculateEndOffset(swipeDirection, screenSize);
 
     print("Start Offset resetWithDirection $startOffset");

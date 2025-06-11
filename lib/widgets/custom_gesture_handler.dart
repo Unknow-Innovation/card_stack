@@ -13,7 +13,7 @@ class CustomGestureHandler<T> extends StatefulWidget {
   final Widget? likePositionIndicater;
   final Widget? dislikePositionIndicater;
   final Widget? superLikePositionIndicater;
-
+  final Size screenSize;
   final double threshold;
   final double rotationFactor;
   final double scaleFactor;
@@ -24,6 +24,7 @@ class CustomGestureHandler<T> extends StatefulWidget {
     super.key,
     required this.child,
     required this.item,
+    required this.screenSize,
     this.controller,
     this.likePositionIndicater,
     this.dislikePositionIndicater,
@@ -76,18 +77,24 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
                     // Directional Stickers
                     if (widget.likePositionIndicater != null)
                       _buildAnimatedSticker(
+                        controller: controller,
+                        size: widget.screenSize,
                         direction: Direction.right,
                         offset: offset,
                         sticker: widget.likePositionIndicater,
                       ),
                     if (widget.dislikePositionIndicater != null)
                       _buildAnimatedSticker(
+                        controller: controller,
+                        size: widget.screenSize,
                         direction: Direction.left,
                         offset: offset,
                         sticker: widget.dislikePositionIndicater,
                       ),
                     if (widget.superLikePositionIndicater != null)
                       _buildAnimatedSticker(
+                        controller: controller,
+                        size: widget.screenSize,
                         direction: Direction.up,
                         offset: offset,
                         sticker: widget.superLikePositionIndicater,
@@ -106,9 +113,11 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
   Widget _buildAnimatedSticker({
     required Direction direction,
     required Offset offset,
+    required Size size,
     required Widget? sticker,
+    required CardSwipeController controller,
   }) {
-    final controller = widget.controller!;
+    // final controller = widget.controller!;
     final drag = controller.dragPosition;
 
     // Determine if this sticker should be visible
@@ -119,19 +128,19 @@ class _CustomGestureHandlerState extends State<CustomGestureHandler>
 
     // Entrance animation: sticker slides in from opposite direction
     Offset translation = Offset.zero;
-    final size = MediaQuery.sizeOf(context);
+
     switch (direction) {
       case Direction.right:
         translation =
-            Offset(-(size.width * 0.5) + offset.dx / 2, 0); // Enter from left
+            Offset(-(size.width * 0.5) + offset.dx / 4, 0); // Enter from left
         break;
       case Direction.left:
         translation =
-            Offset(size.width * 0.5 + offset.dx / 2, 0); // Enter from right
+            Offset(size.width * 0.5 + offset.dx / 4, 0); // Enter from right
         break;
       case Direction.up:
         translation =
-            Offset(0, (size.height * 0.4) + offset.dy / 2); // Enter from bottom
+            Offset(0, (size.height * 0.4) + offset.dy / 4); // Enter from bottom
         break;
       case Direction.down:
         // translation =
