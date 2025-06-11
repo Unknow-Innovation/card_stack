@@ -10,9 +10,7 @@ import 'package:provider/provider.dart';
 class CustomGestureHandler<T> extends StatefulWidget {
   final Widget child;
   final T item;
-  final Widget? likePositionIndicater;
-  final Widget? dislikePositionIndicater;
-  final Widget? superLikePositionIndicater;
+
   final Size screenSize;
   final double threshold;
   final double rotationFactor;
@@ -26,9 +24,6 @@ class CustomGestureHandler<T> extends StatefulWidget {
     required this.item,
     required this.screenSize,
     this.controller,
-    this.likePositionIndicater,
-    this.dislikePositionIndicater,
-    this.superLikePositionIndicater,
     this.threshold = 150.0,
     this.rotationFactor = 0.1,
     this.scaleFactor = 0.9,

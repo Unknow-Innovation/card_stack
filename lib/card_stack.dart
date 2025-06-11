@@ -88,9 +88,6 @@ class _CardStackState<T> extends State<CardStack<T>> {
             rotationFactor: widget.rotationFactor,
             scaleFactor: widget.scaleFactor,
             animationDuration: widget.animationDuration,
-            dislikePositionIndicater: widget.dislikePositionIndicater,
-            likePositionIndicater: widget.likePositionIndicater,
-            superLikePositionIndicater: widget.superLikePositionIndicater,
             child: card,
           )
         : RepaintBoundary(child: card);
