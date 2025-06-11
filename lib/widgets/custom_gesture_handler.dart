@@ -2,7 +2,6 @@
 /// This file is part of the proprietary CardStack library.
 /// Unauthorized use or distribution is strictly prohibited.
 
-import 'package:card_stack/config/enums.dart';
 import 'package:card_stack/controllers/card_swipe_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
