@@ -27,6 +27,7 @@ class CardSwipeController<T> extends ChangeNotifier {
   double _scale = 1.0;
   bool _isSwiping = false;
   bool _shouldSwipe = false;
+  Direction? _cachedDirection;
 
   // Configuration
   final double threshold;
@@ -43,6 +44,8 @@ class CardSwipeController<T> extends ChangeNotifier {
   bool get isDragging => _isDragging;
   bool get isSwiping => _isSwiping;
   bool get shouldSwipe => _shouldSwipe;
+
+  VoidCallback? onSwipeCompleted;
 
   CardSwipeController({
     required TickerProvider vsync,
@@ -93,7 +96,6 @@ class CardSwipeController<T> extends ChangeNotifier {
     if (!_isDragging) return;
 
     final velocity = details.velocity.pixelsPerSecond;
-    debugPrint(_dragPosition.distance.toString());
 
     if (_shouldSwipe || velocity.distance > 500) {
       _startSwipeAnimation(null);
@@ -137,6 +139,9 @@ class CardSwipeController<T> extends ChangeNotifier {
 
     animationController.forward().then((_) {
       onSwipe(direction ?? calculatedDirection, _item as T);
+      if (onSwipeCompleted != null) {
+        onSwipeCompleted!();
+      }
       _resetCard();
     });
   }
@@ -192,18 +197,20 @@ class CardSwipeController<T> extends ChangeNotifier {
     notifyListeners();
 
     animationController.forward(from: 0.0).then((_) {
-      animationController.reset();
-      _dragPosition = Offset.zero;
-      _rotation = 0.0;
-      _scale = 1.0;
-      _isDragging = false;
-      _isSwiping = false;
-      _shouldSwipe = false;
-      notifyListeners();
+      // animationController.reset();
+      // _dragPosition = Offset.zero;
+      // _rotation = 0.0;
+      // _scale = 1.0;
+      // _isDragging = false;
+      // _isSwiping = false;
+      // _shouldSwipe = false;
+      // notifyListeners();
+      _resetCard();
     });
   }
 
   void _resetCard() {
+    _cachedDirection = null;
     _dragPosition = Offset.zero;
     _rotation = 0.0;
     _scale = 1.0;
@@ -221,8 +228,6 @@ class CardSwipeController<T> extends ChangeNotifier {
     _item = data;
 
     final startOffset = _calculateEndOffset(swipeDirection, screenSize);
-
-    print("Start Offset resetWithDirection $startOffset");
 
     animation = Tween<Offset>(
       begin: startOffset,
@@ -259,18 +264,24 @@ class CardSwipeController<T> extends ChangeNotifier {
   Direction? get dragDirection {
     if (_dragPosition == Offset.zero) return null;
     final isHorizontal = _dragPosition.dx.abs() > _dragPosition.dy.abs();
-    if (isHorizontal) {
-      return _dragPosition.dx > 0.1
-          ? Direction.right
-          : _dragPosition.dx < -0.1
-              ? Direction.left
-              : null;
-    } else {
-      return _dragPosition.dy < -0.1
-          ? Direction.up
-          : _dragPosition.dy > 0.1
-              ? Direction.down
-              : null;
+
+    final newDirection = isHorizontal
+        ? (_dragPosition.dx > 0.1
+            ? Direction.right
+            : _dragPosition.dx < -0.1
+                ? Direction.left
+                : null)
+        : (_dragPosition.dy < -0.1
+            ? Direction.up
+            : _dragPosition.dy > 0.1
+                ? Direction.down
+                : null);
+
+    // Only update the cache if newDirection is not null
+    if (newDirection != null) {
+      _cachedDirection = newDirection;
     }
+
+    return _cachedDirection;
   }
 }

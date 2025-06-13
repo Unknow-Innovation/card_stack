@@ -33,6 +33,9 @@ class CardStack<T> extends StatefulWidget {
   final Widget? likePositionIndicater;
   final Widget? dislikePositionIndicater;
   final Widget? superLikePositionIndicater;
+  final Widget? likeCompleteIndicater;
+  final Widget? dislikeCompleteIndicater;
+  final Widget? superLikeCompleteIndicater;
 
   const CardStack({
     super.key,
@@ -54,6 +57,9 @@ class CardStack<T> extends StatefulWidget {
     this.threshold = 150.0,
     this.animationDuration = const Duration(milliseconds: 600),
     this.backgroundCardCount = 2,
+    this.likeCompleteIndicater,
+    this.dislikeCompleteIndicater,
+    this.superLikeCompleteIndicater,
   });
 
   @override
@@ -61,6 +67,32 @@ class CardStack<T> extends StatefulWidget {
 }
 
 class _CardStackState<T> extends State<CardStack<T>> {
+  bool _showCompleteIndicator = false;
+  Direction? _completedDirection;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.onSwipeCompleted = _handleSwipeComplete;
+  }
+
+  void _handleSwipeComplete() {
+    print("Profile Liked");
+    setState(() {
+      _completedDirection = widget.controller.dragDirection;
+      _showCompleteIndicator = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        setState(() {
+          _showCompleteIndicator = false;
+          _completedDirection = null;
+        });
+      }
+    });
+  }
+
   Widget _buildCard(T item, bool isTopCard, int visualIndex, Size screenSize) {
     final card = Container(
       width: widget.cardWidth,
@@ -129,6 +161,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
                       direction: Direction.right,
                       offset: offset,
                       sticker: widget.likePositionIndicater,
+                      showCompleteIndicator: _showCompleteIndicator,
                     ),
                   if (widget.dislikePositionIndicater != null)
                     _buildAnimatedSticker(
@@ -137,6 +170,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
                       direction: Direction.left,
                       offset: offset,
                       sticker: widget.dislikePositionIndicater,
+                      showCompleteIndicator: _showCompleteIndicator,
                     ),
                   if (widget.superLikePositionIndicater != null)
                     _buildAnimatedSticker(
@@ -145,6 +179,15 @@ class _CardStackState<T> extends State<CardStack<T>> {
                       direction: Direction.up,
                       offset: offset,
                       sticker: widget.superLikePositionIndicater,
+                      showCompleteIndicator: _showCompleteIndicator,
+                    ),
+
+                  if (_showCompleteIndicator && _completedDirection != null)
+                    Positioned.fill(
+                      child: Center(
+                        child:
+                            _getCompleteIndicatorWidget(_completedDirection!),
+                      ),
                     ),
                 ]);
               },
@@ -174,20 +217,34 @@ class _CardStackState<T> extends State<CardStack<T>> {
     );
   }
 
+  Widget _getCompleteIndicatorWidget(Direction direction) {
+    switch (direction) {
+      case Direction.right:
+        return widget.likeCompleteIndicater ?? const SizedBox.shrink();
+      case Direction.left:
+        return widget.dislikeCompleteIndicater ?? const SizedBox.shrink();
+      case Direction.up:
+        return widget.superLikeCompleteIndicater ?? const SizedBox.shrink();
+      case Direction.down:
+        return const SizedBox.shrink();
+    }
+  }
+
   Widget _buildAnimatedSticker({
     required Direction direction,
     required Offset offset,
     required Size size,
     required Widget? sticker,
     required CardSwipeController controller,
+    required bool showCompleteIndicator,
   }) {
     // final controller = widget.controller!;
     final drag = controller.dragPosition;
 
     // Determine if this sticker should be visible
     final show = controller.dragDirection == direction;
-    final opacity = show
-        ? (drag.distance / (controller.threshold + 120)).clamp(0.0, 1.0)
+    final opacity = show && !showCompleteIndicator
+        ? ((drag.distance) / (controller.threshold + 120)).clamp(0.0, 1.0)
         : 0.0;
 
     // Entrance animation: sticker slides in from opposite direction
@@ -203,8 +260,10 @@ class _CardStackState<T> extends State<CardStack<T>> {
             Offset(size.width * 0.5 + offset.dx / 4, 0); // Enter from right
         break;
       case Direction.up:
-        translation =
-            Offset(0, (size.height * 0.4) + offset.dy / 4); // Enter from bottom
+        final delta = (size.height * 0.32);
+
+        translation = Offset(0,
+            (size.height * 0.4) + (offset.dy + delta) / 4); // Enter from bottom
         break;
       case Direction.down:
         // translation =
