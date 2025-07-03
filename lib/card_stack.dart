@@ -127,19 +127,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return Center(child: widget.loadingWidget);
-    }
-    if (widget.items.isEmpty) {
-      return Center(child: widget.emptyWidget);
-    }
-
-    final visibleCount =
-        min(widget.items.length, widget.backgroundCardCount + 1);
-    final visibleItems = widget.items
-        .sublist(widget.items.length - visibleCount, widget.items.length)
-        .toList();
-
+    if (widget.isLoading) return Center(child: widget.loadingWidget);
     return Center(
       child: ChangeNotifierProvider.value(
         value: widget.controller,
@@ -196,25 +184,47 @@ class _CardStackState<T> extends State<CardStack<T>> {
                     ),
                 ]);
               },
-              child: Stack(
-                children: List.generate(visibleItems.length, (i) {
-                  final item = visibleItems[i];
-                  final isTop = i == visibleItems.length - 1;
-                  final visualIndex = visibleItems.length - 1 - i;
+              child: Stack(children: [
+                Builder(
+                  builder: (context) {
+                    final visibleCount = min(
+                        widget.items.length, widget.backgroundCardCount + 1);
+                    final visibleItems = widget.items
+                        .sublist(widget.items.length - visibleCount,
+                            widget.items.length)
+                        .toList();
 
-                  if (isTop) widget.controller.setItem = item;
+                    if (widget.items.isEmpty &&
+                        visibleCount == 0 &&
+                        !_showCompleteIndicator &&
+                        !widget.isLoading) {
+                      return Center(child: widget.emptyWidget);
+                    }
+                    return Stack(
+                      children: List.generate(
+                        visibleItems.length,
+                        (i) {
+                          final item = visibleItems[i];
+                          final isTop = i == visibleItems.length - 1;
+                          final visualIndex = visibleItems.length - 1 - i;
 
-                  return Positioned(
-                    top: 0,
-                    child: _buildCard(
-                      item,
-                      isTop,
-                      visualIndex,
-                      widget.screenSize,
-                    ),
-                  );
-                }),
-              ),
+                          if (isTop) widget.controller.setItem = item;
+
+                          return Positioned(
+                            top: 0,
+                            child: _buildCard(
+                              item,
+                              isTop,
+                              visualIndex,
+                              widget.screenSize,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )
+              ]),
             );
           },
         ),
