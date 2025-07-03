@@ -184,9 +184,11 @@ class _CardStackState<T> extends State<CardStack<T>> {
 
                   if (_showCompleteIndicator && _completedDirection != null)
                     Positioned.fill(
-                      child: Center(
-                        child:
-                            _getCompleteIndicatorWidget(_completedDirection!),
+                      child: IgnorePointer(
+                        child: Center(
+                          child:
+                              _getCompleteIndicatorWidget(_completedDirection!),
+                        ),
                       ),
                     ),
                 ]);
@@ -244,7 +246,7 @@ class _CardStackState<T> extends State<CardStack<T>> {
     // Determine if this sticker should be visible
     final show = controller.dragDirection == direction;
     final opacity = show && !showCompleteIndicator
-        ? ((drag.distance) / (controller.threshold + 120)).clamp(0.0, 1.0)
+        ? ((drag.distance) / (controller.threshold + 50)).clamp(0.0, 1.0)
         : 0.0;
 
     // Entrance animation: sticker slides in from opposite direction
@@ -260,10 +262,8 @@ class _CardStackState<T> extends State<CardStack<T>> {
             Offset(size.width * 0.5 + offset.dx / 4, 0); // Enter from right
         break;
       case Direction.up:
-        final delta = (size.height * 0.32);
-
-        translation = Offset(0,
-            (size.height * 0.4) + (offset.dy + delta) / 4); // Enter from bottom
+        translation = Offset(
+            0, (size.height * 0.4) + (offset.dy) / 4.7); // Enter from bottom
         break;
       case Direction.down:
         // translation =
