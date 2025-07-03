@@ -154,7 +154,8 @@ class _CardStackState<T> extends State<CardStack<T>> {
                 return Stack(alignment: Alignment.center, children: [
                   child!,
                   // Directional Stickers
-                  if (widget.likePositionIndicater != null)
+                  if (widget.likePositionIndicater != null &&
+                      !_showCompleteIndicator)
                     _buildAnimatedSticker(
                       controller: controller,
                       size: widget.screenSize,
@@ -163,7 +164,8 @@ class _CardStackState<T> extends State<CardStack<T>> {
                       sticker: widget.likePositionIndicater,
                       showCompleteIndicator: _showCompleteIndicator,
                     ),
-                  if (widget.dislikePositionIndicater != null)
+                  if (widget.dislikePositionIndicater != null &&
+                      !_showCompleteIndicator)
                     _buildAnimatedSticker(
                       controller: controller,
                       size: widget.screenSize,
@@ -172,7 +174,8 @@ class _CardStackState<T> extends State<CardStack<T>> {
                       sticker: widget.dislikePositionIndicater,
                       showCompleteIndicator: _showCompleteIndicator,
                     ),
-                  if (widget.superLikePositionIndicater != null)
+                  if (widget.superLikePositionIndicater != null &&
+                      !_showCompleteIndicator)
                     _buildAnimatedSticker(
                       controller: controller,
                       size: widget.screenSize,
